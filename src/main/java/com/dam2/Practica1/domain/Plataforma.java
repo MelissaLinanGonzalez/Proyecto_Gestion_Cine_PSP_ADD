@@ -1,0 +1,31 @@
+package com.dam2.Practica1.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "plataformas")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Plataforma {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String nombre;
+
+    private String url;
+
+    @ManyToMany(mappedBy = "plataformas")
+    @JsonIgnore
+    private List<Pelicula> peliculas = new ArrayList<>();
+}

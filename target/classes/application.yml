@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cine
+    username: admin
+    password: admin123
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update         # crea/actualiza tablas en desarrollo
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc.lob.non_contextual_creation: true
+
+  # Soporte de Spring Boot 3.1+ para Docker Compose (opcional)
+  docker:
+    compose:
+      enabled: true            # si usas `spring-boot:run` con Compose
+
+server:
+  port: 8081                   # evita conflicto con pgAdmin (8080 en el host)
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql.BasicBinder: trace

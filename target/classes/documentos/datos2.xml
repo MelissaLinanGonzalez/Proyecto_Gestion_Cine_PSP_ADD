@@ -1,0 +1,25 @@
+<peliculas>
+    <pelicula>
+        <titulo>Interstellar</titulo>
+        <duracion>169</duracion>
+        <fechaEstreno>2014-11-07</fechaEstreno>
+        <sinopsis>Exploradores espaciales...</sinopsis>
+        <directorId>1</directorId>
+    </pelicula>
+
+    <pelicula>
+        <titulo>The Dark Knight</titulo>
+        <duracion>152</duracion>
+        <fechaEstreno>2008-07-18</fechaEstreno>
+        <sinopsis>Batman vs Joker...</sinopsis>
+        <directorId>1</directorId>
+    </pelicula>
+
+    <pelicula>
+        <titulo>Soul</titulo>
+        <duracion>100</duracion>
+        <fechaEstreno>2020-12-25</fechaEstreno>
+        <sinopsis>Un músico descubre...</sinopsis>
+        <directorId>2</directorId>
+    </pelicula>
+</peliculas>
