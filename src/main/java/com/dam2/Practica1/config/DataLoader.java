@@ -50,8 +50,8 @@ public class DataLoader {
             // FICHAS TÉCNICAS
             // ======================================
             // OJO: tus fichas solo tienen (id, director, duracion, pais)
-            FichaTecnica f1 = new FichaTecnica(null, "Christopher Nolan", 169, "EE.UU.");
-            FichaTecnica f2 = new FichaTecnica(null, "Pete Docter", 100, "EE.UU.");
+            FichaTecnica f1 = new FichaTecnica(null, nolan, 169, "EE.UU.");
+            FichaTecnica f2 = new FichaTecnica(null, docter, 100, "EE.UU.");
 
             fichaRepo.save(f1);
             fichaRepo.save(f2);

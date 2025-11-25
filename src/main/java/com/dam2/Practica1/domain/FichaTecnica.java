@@ -13,11 +13,11 @@ public class FichaTecnica {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String director;
-    private int duracion;
+    private Director director;
+    private Integer duracion;
     private String pais;
 
-    public FichaTecnica(Long id, String director, int duracion, String pais) {
+    public FichaTecnica(Long id, Director director, int duracion, String pais) {
         this.id = id;
         this.director = director;
         this.duracion = duracion;
