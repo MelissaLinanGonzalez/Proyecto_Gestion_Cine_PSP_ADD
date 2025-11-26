@@ -3,6 +3,7 @@ package com.dam2.Practica1.web;
 import com.dam2.Practica1.DTO.Actor.ActorCreateUpdateDTO;
 import com.dam2.Practica1.DTO.Actor.ActorDTO;
 import com.dam2.Practica1.domain.Actor;
+import com.dam2.Practica1.mapper.ActorMapper;
 import com.dam2.Practica1.service.ActorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,33 +20,33 @@ public class ActorController {
 
     @GetMapping
     public List<ActorDTO> obtenerActores(){
-        return actorService.actores().stream().map(this::mapToDTO).collect(Collectors.toList());
+        return actorService.actores()
+                .stream()
+                .map(ActorMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     public ActorDTO actorPorId(@PathVariable Long id){
         Actor actor = actorService.buscarPorId(id);
-        return mapToDTO(actor);
+        return ActorMapper.toDTO(actor);
     }
 
     @PostMapping
-    public void crear(@RequestBody ActorCreateUpdateDTO dto){
+    public ActorDTO crear(@RequestBody ActorCreateUpdateDTO dto){
         Actor actor = actorService.crear(dto);
-
+        return ActorMapper.toDTO(actor);
     }
 
     @PutMapping("/{id}")
-    public ActorDTO actualizarActor(@PathVariable Long id, @RequestBody ActorCreateUpdateDTO dto){
+    public ActorDTO actualizarActor(@PathVariable Long id,
+                                    @RequestBody ActorCreateUpdateDTO dto){
         Actor actor = actorService.actualizar(id, dto);
-        return mapToDTO(actor);
+        return ActorMapper.toDTO(actor);
     }
 
-    @DeleteMapping("/ {id}")
+    @DeleteMapping("/{id}")
     public void eliminarActor(@PathVariable Long id){
         actorService.eliminar(id);
-    }
-
-    private ActorDTO mapToDTO(Actor actor){
-        return new ActorDTO(actor.getId(), actor.getNombre());
     }
 }
