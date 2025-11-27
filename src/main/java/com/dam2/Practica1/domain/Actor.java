@@ -2,7 +2,6 @@ package com.dam2.Practica1.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDate;
 
 import java.util.ArrayList;
 import java.util.List;
