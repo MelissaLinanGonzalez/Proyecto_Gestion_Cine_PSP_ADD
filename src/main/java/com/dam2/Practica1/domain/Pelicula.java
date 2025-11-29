@@ -29,10 +29,10 @@ public class Pelicula {
 
     private String sinopsis;
 
-    private int valoracion;
+    private Integer valoracion;
 
     @ManyToOne
-    @JoinColumn(name = "director_id", nullable = false) // FK en PELICULA
+    @JoinColumn(name = "director_id", nullable = true) // FK en PELICULA
     @JsonManagedReference
     private Director director;
 

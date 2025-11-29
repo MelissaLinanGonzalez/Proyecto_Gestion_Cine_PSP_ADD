@@ -35,7 +35,7 @@ public class CriticaController {
         return criticaService.crear(dto);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public CriticaDTO actualizarCritica(@PathVariable Long id, @RequestBody CriticaCreateUpdateDTO dto){
         return criticaService.actualizar(id, dto);
     }

@@ -6,7 +6,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: update         # crea/actualiza tablas en desarrollo
+      ddl-auto: update          # crea/actualiza tablas en desarrollo
     properties:
       hibernate:
         format_sql: true

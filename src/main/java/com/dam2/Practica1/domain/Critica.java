@@ -27,12 +27,12 @@ public class Critica {
     private LocalDate fecha;
 
     @ManyToOne
-    @JoinColumn(name = "pelicula_id", nullable = false)
+    @JoinColumn(name = "pelicula_id", nullable = true)
     private Pelicula pelicula;
 
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "usuario_id", nullable = true)
     private Usuario usuario;
 
 }
