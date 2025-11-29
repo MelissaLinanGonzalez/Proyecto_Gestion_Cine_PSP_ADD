@@ -13,7 +13,6 @@ public class UsuarioMapper {
                 usuario.getId(),
                 usuario.getUsername(),
                 usuario.getEmail(),
-                usuario.getPassword(),
                 usuario.getEsAdmin()
         );
     }

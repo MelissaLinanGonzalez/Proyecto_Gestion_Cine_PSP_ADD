@@ -2,11 +2,9 @@ package com.dam2.Practica1.config;
 
 import com.dam2.Practica1.domain.Actor;
 import com.dam2.Practica1.domain.Director;
-import com.dam2.Practica1.domain.FichaTecnica;
 import com.dam2.Practica1.domain.Pelicula;
 import com.dam2.Practica1.repository.ActorRepository;
 import com.dam2.Practica1.repository.DirectorRepository;
-import com.dam2.Practica1.repository.FichaTecnicaRepository;
 import com.dam2.Practica1.repository.PeliculaRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +19,6 @@ public class DataLoader {
     @Bean
     CommandLineRunner initData(ActorRepository actorRepo,
                                DirectorRepository directorRepo,
-                               FichaTecnicaRepository fichaRepo,
                                PeliculaRepository peliculaRepo) {
 
         return args -> {
@@ -50,11 +47,11 @@ public class DataLoader {
             // FICHAS TÉCNICAS
             // ======================================
             // OJO: tus fichas solo tienen (id, director, duracion, pais)
-            FichaTecnica f1 = new FichaTecnica(null, nolan, 169, "EE.UU.");
-            FichaTecnica f2 = new FichaTecnica(null, docter, 100, "EE.UU.");
-
-            fichaRepo.save(f1);
-            fichaRepo.save(f2);
+//            FichaTecnica f1 = new FichaTecnica(null, nolan, 169, "EE.UU.");
+//            FichaTecnica f2 = new FichaTecnica(null, docter, 100, "EE.UU.");
+//
+//            fichaRepo.save(f1);
+//            fichaRepo.save(f2);
 
             // ======================================
             // PELÍCULAS
@@ -66,7 +63,6 @@ public class DataLoader {
                     LocalDate.of(2014, 11, 7),
                     "Exploradores espaciales viajan a través de un agujero de gusano...",
                     9,
-                    f1,
                     nolan,
                     new ArrayList<>(),  // lista de actores VACÍA
                     new ArrayList<>(),  // lista de plataforma VACÍA
@@ -82,7 +78,6 @@ public class DataLoader {
                     LocalDate.of(2020, 12, 25),
                     "Un músico descubre el verdadero sentido de la vida...",
                     8,
-                    f2,
                     docter,
                     new ArrayList<>(),
                     new ArrayList<>(),

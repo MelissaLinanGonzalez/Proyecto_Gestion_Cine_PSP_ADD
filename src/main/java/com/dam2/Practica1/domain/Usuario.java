@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "usuarios")
 @Data
@@ -28,4 +30,7 @@ public class Usuario {
 
     @Column(nullable = false)
     private Boolean esAdmin;
+
+    @OneToMany(mappedBy = "usuario")
+    private List<Critica> criticas;
 }

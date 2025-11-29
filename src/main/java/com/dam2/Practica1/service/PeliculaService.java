@@ -7,6 +7,7 @@ import com.dam2.Practica1.domain.Pelicula;
 import com.dam2.Practica1.mapper.PeliculaMapper;
 import com.dam2.Practica1.repository.DirectorRepository;
 import com.dam2.Practica1.repository.PeliculaRepository;
+import jakarta.transaction.Transactional;
 import lombok.*;
 import org.springframework.stereotype.Service;
 import org.springframework.scheduling.annotation.Async;
@@ -46,31 +47,28 @@ public class PeliculaService {
     }
 
     public PeliculaDTO buscarPorId(Long id) {
-        Pelicula pelicula = peliculaRepository.findById(id).orElse(null);
+        Pelicula pelicula = peliculaRepository.findById(id).orElseThrow(() -> new RuntimeException("No se ha encontrado la película"));
         return PeliculaMapper.toDTO(pelicula);
     }
 
+    @Transactional
     public PeliculaDTO guardar(PeliculaCreateUpdateDTO dto){
         Pelicula pelicula = PeliculaMapper.toEntity(dto);
-
-        Director directorDefault = directorRepository.findById(1L)
-                .orElseThrow(() -> new RuntimeException("Director por defecto no encontrado"));
-        pelicula.setDirector(directorDefault);
-
-        Pelicula guardada = peliculaRepository.save(pelicula);
-        return PeliculaMapper.toDTO(guardada);
+        peliculaRepository.save(pelicula);
+        return PeliculaMapper.toDTO(pelicula);
     }
 
+    @Transactional
     public PeliculaDTO actualizar(Long id, PeliculaCreateUpdateDTO dto){
-        Pelicula pelicula = peliculaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Película no encontrada"));
+        Pelicula pelicula = peliculaRepository.findById(id).orElseThrow(() -> new RuntimeException("Película no encontrada"));
 
         PeliculaMapper.updateEntity(pelicula, dto);
 
-        Pelicula actualizada = peliculaRepository.save(pelicula);
-        return PeliculaMapper.toDTO(actualizada);
+        peliculaRepository.save(pelicula);
+        return PeliculaMapper.toDTO(pelicula);
     }
 
+    @Transactional
     public void borrar(Long id){
         peliculaRepository.deleteById(id);
     }

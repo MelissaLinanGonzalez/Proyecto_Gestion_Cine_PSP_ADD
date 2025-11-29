@@ -5,6 +5,7 @@ import com.dam2.Practica1.DTO.Usuario.UsuarioDTO;
 import com.dam2.Practica1.domain.Usuario;
 import com.dam2.Practica1.mapper.UsuarioMapper;
 import com.dam2.Practica1.service.UsuarioService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuarios")
+@RequiredArgsConstructor
 public class UsuarioController {
     
     @Autowired
@@ -20,28 +22,22 @@ public class UsuarioController {
     
     @GetMapping
     public List<UsuarioDTO> obtenerUsuarios(){
-        return usuarioService.usuarios()
-                .stream()
-                .map(UsuarioMapper::toDTO)
-                .collect(Collectors.toList());
+        return usuarioService.usuarios();
     }
     
     @GetMapping("/{id}")
     public UsuarioDTO usuarioPorId(@PathVariable Long id){
-        Usuario usuario = usuarioService.buscarPorId(id);
-        return UsuarioMapper.toDTO(usuario);
+        return usuarioService.buscarPorId(id);
     }
     
     @PostMapping
     public UsuarioDTO crear(@RequestBody UsuarioCreateUpdateDTO dto){
-        Usuario usuario = usuarioService.crear(dto);
-        return UsuarioMapper.toDTO(usuario);
+        return usuarioService.crear(dto);
     }
     
     @PutMapping("/{id}")
     public UsuarioDTO actualizarUsuario(@PathVariable Long id, @RequestBody UsuarioCreateUpdateDTO dto){
-        Usuario usuario = usuarioService.actualizar(id, dto);
-        return UsuarioMapper.toDTO(usuario);
+        return usuarioService.actualizar(id, dto);
     }
 
     @DeleteMapping("/{id}")

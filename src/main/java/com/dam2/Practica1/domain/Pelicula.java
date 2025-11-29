@@ -31,10 +31,6 @@ public class Pelicula {
 
     private int valoracion;
 
-    @OneToOne
-    @JoinColumn(name = "ficha_id") // FK en la tabla Pelicula
-    private FichaTecnica fichaTecnica;
-
     @ManyToOne
     @JoinColumn(name = "director_id", nullable = false) // FK en PELICULA
     @JsonManagedReference

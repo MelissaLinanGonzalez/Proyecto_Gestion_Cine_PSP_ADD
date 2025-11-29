@@ -1,11 +1,9 @@
 package com.dam2.Practica1.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDate;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,8 +21,9 @@ public class Director {
     private String nombre;
 
     // Relación 1:N con Pelicula
-    @JsonIgnore
+
     @OneToMany(mappedBy = "director")
+    @JsonBackReference
     private List<Pelicula> peliculas;
 
 

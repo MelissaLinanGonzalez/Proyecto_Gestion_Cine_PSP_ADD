@@ -5,15 +5,17 @@ import com.dam2.Practica1.DTO.Categoria.CategoriaCreateUpdateDTO;
 import com.dam2.Practica1.DTO.Categoria.CategoriaDTO;
 
 import com.dam2.Practica1.domain.Categoria;
+import com.dam2.Practica1.mapper.CategoriaMapper;
 import com.dam2.Practica1.service.CategoriaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/categorias")
+@RequiredArgsConstructor
 public class CategoriaController {
 
     @Autowired
@@ -21,32 +23,26 @@ public class CategoriaController {
 
     @GetMapping
     public List<CategoriaDTO> obtenerCategorias(){
-        return categoriaService.categorias().stream().map(this::mapToDTO).collect(Collectors.toList());
+        return categoriaService.categorias();
     }
 
     @GetMapping("/{id}")
     public CategoriaDTO categoriaPorId(@PathVariable Long id){
-        Categoria categoria = categoriaService.buscarPorId(id);
-        return mapToDTO(categoria);
+        return categoriaService.buscarPorId(id);
     }
 
     @PostMapping
-    public void crear(@RequestBody CategoriaCreateUpdateDTO dto){
-        Categoria categoria = categoriaService.crear(dto);
+    public CategoriaDTO crear(@RequestBody CategoriaCreateUpdateDTO dto){
+        return categoriaService.crear(dto);
     }
 
     @PutMapping("/{id}")
     public CategoriaDTO actualizarCategoria(@PathVariable Long id, @RequestBody CategoriaCreateUpdateDTO dto){
-        Categoria categoria = categoriaService.actualizar(id, dto);
-        return mapToDTO(categoria);
+        return categoriaService.actualizar(id,dto);
     }
 
     @DeleteMapping("/{id}")
     public void eliminarCategoria(@PathVariable Long id){
         categoriaService.eliminar(id);
-    }
-
-    private CategoriaDTO mapToDTO(Categoria categoria){
-    return new CategoriaDTO(categoria.getId(), categoria.getNombre());
     }
 }

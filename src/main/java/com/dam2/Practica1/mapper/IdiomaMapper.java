@@ -15,7 +15,6 @@ public class IdiomaMapper {
         );
     }
 
-    // DTO -> Entity (para crear)
     public static Idioma toEntity(IdiomaCreateUpdateDTO dto) {
         if (dto == null) return null;
 
@@ -24,7 +23,6 @@ public class IdiomaMapper {
         return idioma;
     }
 
-    // DTO -> Actualizar entity existente
     public static void updateEntity(Idioma idioma, IdiomaCreateUpdateDTO dto) {
         idioma.setNombre(dto.getNombre());
     }

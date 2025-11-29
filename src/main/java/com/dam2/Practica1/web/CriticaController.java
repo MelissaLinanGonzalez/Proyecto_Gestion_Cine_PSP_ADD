@@ -5,6 +5,7 @@ import com.dam2.Practica1.DTO.Critica.CriticaDTO;
 import com.dam2.Practica1.domain.Critica;
 import com.dam2.Practica1.mapper.CriticaMapper;
 import com.dam2.Practica1.service.CriticaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/criticas")
+@RequiredArgsConstructor
 public class CriticaController {
 
     @Autowired
@@ -20,28 +22,22 @@ public class CriticaController {
 
     @GetMapping
     public List<CriticaDTO> obtenerCriticas(){
-        return criticaService.criticas()
-                .stream()
-                .map(CriticaMapper::toDTO)
-                .collect(Collectors.toList());
+        return criticaService.criticas();
     }
 
     @GetMapping("/{id}")
     public CriticaDTO criticaPorId(@PathVariable Long id){
-        Critica critica = criticaService.buscarPorId(id);
-        return CriticaMapper.toDTO(critica);
+        return criticaService.buscarPorId(id);
     }
 
     @PostMapping
     public CriticaDTO crear(@RequestBody CriticaCreateUpdateDTO dto){
-        Critica critica = criticaService.crear(dto);
-        return CriticaMapper.toDTO(critica);
+        return criticaService.crear(dto);
     }
 
     @PutMapping
     public CriticaDTO actualizarCritica(@PathVariable Long id, @RequestBody CriticaCreateUpdateDTO dto){
-        Critica critica = criticaService.actualizar(id, dto);
-        return CriticaMapper.toDTO(critica);
+        return criticaService.actualizar(id, dto);
     }
 
     @DeleteMapping("/{id}")

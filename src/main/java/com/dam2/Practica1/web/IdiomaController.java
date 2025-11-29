@@ -5,6 +5,7 @@ import com.dam2.Practica1.DTO.Idioma.IdiomaDTO;
 import com.dam2.Practica1.domain.Idioma;
 import com.dam2.Practica1.mapper.IdiomaMapper;
 import com.dam2.Practica1.service.IdiomaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/idiomas")
+@RequiredArgsConstructor
 public class IdiomaController {
 
     @Autowired
@@ -20,28 +22,22 @@ public class IdiomaController {
 
     @GetMapping
     public List<IdiomaDTO> obtenerIdiomas(){
-        return idiomaService.idiomas()
-                .stream()
-                .map(IdiomaMapper::toDTO)
-                .collect(Collectors.toList());
+        return idiomaService.idiomas();
     }
 
     @GetMapping("/{id}")
     public IdiomaDTO idiomaPorId(@PathVariable Long id){
-        Idioma idioma = idiomaService.buscarPorId(id);
-        return IdiomaMapper.toDTO(idioma);
+        return idiomaService.buscarPorId(id);
     }
 
     @PostMapping
     public IdiomaDTO crearIdioma(@RequestBody IdiomaCreateUpdateDTO dto){
-        Idioma idioma = idiomaService.crear(dto);
-        return IdiomaMapper.toDTO(idioma);
+        return idiomaService.crear(dto);
     }
 
     @PutMapping("/{id}")
     public IdiomaDTO actualizarIdioma(@PathVariable Long id, @RequestBody IdiomaCreateUpdateDTO dto){
-        Idioma idioma = idiomaService.actualizar(id, dto);
-        return IdiomaMapper.toDTO(idioma);
+        return idiomaService.actualizar(id, dto);
     }
 
     @DeleteMapping("/{id}")

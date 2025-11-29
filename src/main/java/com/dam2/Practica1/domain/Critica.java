@@ -30,4 +30,9 @@ public class Critica {
     @JoinColumn(name = "pelicula_id", nullable = false)
     private Pelicula pelicula;
 
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
+
 }

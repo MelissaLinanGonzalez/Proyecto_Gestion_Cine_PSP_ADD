@@ -5,6 +5,7 @@ import com.dam2.Practica1.DTO.Director.DirectorDTO;
 import com.dam2.Practica1.domain.Director;
 import com.dam2.Practica1.mapper.DirectorMapper;
 import com.dam2.Practica1.service.DirectorService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/directores")
+@RequiredArgsConstructor
 public class DirectorController {
 
     @Autowired
@@ -20,28 +22,22 @@ public class DirectorController {
 
     @GetMapping
     public List<DirectorDTO> obtenerDirectores(){
-        return directorService.directores()
-                .stream()
-                .map(DirectorMapper::toDTO)
-                .collect(Collectors.toList());
+        return directorService.directores();
     }
 
     @GetMapping("/{id}")
     public DirectorDTO directorPorId(@PathVariable Long id){
-        Director director = directorService.buscarPorId(id);
-        return DirectorMapper.toDTO(director);
+        return directorService.buscarPorId(id);
     }
 
     @PostMapping
     public DirectorDTO crear(@RequestBody DirectorCreateUpdateDTO dto){
-        Director director = directorService.crear(dto);
-        return DirectorMapper.toDTO(director);
+        return directorService.crear(dto);
     }
 
     @PutMapping("/{id}")
     public DirectorDTO actualizarDirector(@PathVariable Long id, @RequestBody DirectorCreateUpdateDTO dto){
-        Director director = directorService.actualizar(id, dto);
-        return DirectorMapper.toDTO(director);
+        return directorService.actualizar(id, dto);
     }
 
     @DeleteMapping("/{id}")
