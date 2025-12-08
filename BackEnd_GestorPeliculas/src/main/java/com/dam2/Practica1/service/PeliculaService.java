@@ -39,6 +39,20 @@ public class PeliculaService {
     private final Random random = new Random();
     private final ImportarService importarService;
 
+    public List<PeliculaDTO> buscarPorTitulo(String titulo) {
+        return peliculaRepository.findByTituloContainingIgnoreCase(titulo)
+                .stream()
+                .map(PeliculaMapper::toDTO)
+                .toList();
+    }
+
+    public List<PeliculaDTO> buscarPorCategoria(String nombreCategoria) {
+        return peliculaRepository.findByCategorias_Nombre(nombreCategoria)
+                .stream()
+                .map(PeliculaMapper::toDTO)
+                .toList();
+    }
+
     public List<PeliculaDTO> listar(){
         return peliculaRepository.findAll()
                 .stream()

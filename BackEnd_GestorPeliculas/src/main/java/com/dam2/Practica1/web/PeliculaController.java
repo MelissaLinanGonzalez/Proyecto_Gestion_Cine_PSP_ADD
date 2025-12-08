@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/peliculas")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class PeliculaController {
 
     private final PeliculaService service;
@@ -26,6 +27,17 @@ public class PeliculaController {
     @GetMapping("/{id}")
     public PeliculaDTO buscarPorId(@PathVariable Long id) {
         return service.buscarPorId(id);
+    }
+
+    @GetMapping("/buscar")
+    public List<PeliculaDTO> buscarPorTitulo(@RequestParam String query) {
+        return service.buscarPorTitulo(query);
+    }
+
+    @GetMapping("/categoria/{nombre}")
+    public List<PeliculaDTO> peliculasPorCategoria(@PathVariable String nombre) {
+        // ✅ Ahora llamamos al servicio, NO al repositorio directamente
+        return service.buscarPorCategoria(nombre);
     }
 
     @PostMapping
