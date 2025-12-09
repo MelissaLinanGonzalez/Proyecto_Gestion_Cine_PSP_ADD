@@ -29,7 +29,7 @@ public class Pelicula {
 
     private String sinopsis;
 
-    private Integer valoracion;
+    private Double valoracion = 0.0;
 
     @ManyToOne
     @JoinColumn(name = "director_id", nullable = true) // FK en PELICULA

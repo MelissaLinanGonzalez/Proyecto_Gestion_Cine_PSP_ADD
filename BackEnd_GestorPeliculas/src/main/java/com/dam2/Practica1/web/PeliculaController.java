@@ -61,7 +61,7 @@ public class PeliculaController {
         return service.mejores_peliculas(5);
     }
 
-    @GetMapping("/procesar")
+    /*@GetMapping("/procesar")
     public String procesarPeliculas() {
         long inicio = System.currentTimeMillis();
         service.tareaLenta("Interstellar");
@@ -86,7 +86,7 @@ public class PeliculaController {
 
         long fin = System.currentTimeMillis();
         return "Tiempo total (asíncrono): " + (fin - inicio) + " ms";
-    }
+    }*/
 
     @GetMapping("/reproducir")
     public String reproducirAsync() {

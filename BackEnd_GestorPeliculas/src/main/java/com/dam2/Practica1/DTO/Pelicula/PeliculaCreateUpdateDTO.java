@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -27,8 +28,5 @@ public class PeliculaCreateUpdateDTO {
     @NotBlank(message = "Sinopsis requerida")
     private String sinopsis;
 
-    @NotNull(message = "Valoración requerida")
-    @Min(value = 0)
-    @Max(value = 10)
-    private int valoracion;
+    private List<Long> categoriaIds;
 }

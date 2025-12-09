@@ -4,11 +4,25 @@ import { localApi } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-    const [creds, setCreds] = useState({ username: '', password: '' });
+    // Estado para saber si estamos en Login o Registro
+    const [isLoginView, setIsLoginView] = useState(true);
+
+    // Un único estado para todos los datos del formulario
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '', // Solo se usa en registro
+        password: ''
+    });
+
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
+
+    // Manejador genérico para escribir en los inputs
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -16,111 +30,148 @@ export default function Login() {
         setLoading(true);
         
         try {
-            const res = await localApi.post('/usuarios/login', creds);
-            login(res.data);
-            navigate('/'); 
+            if (isLoginView) {
+                // --- LÓGICA DE LOGIN ---
+                const res = await localApi.post('/usuarios/login', {
+                    username: formData.username,
+                    password: formData.password
+                });
+                login(res.data);
+                navigate('/'); 
+            } else {
+                // --- LÓGICA DE REGISTRO ---
+                await localApi.post('/usuarios/register', {
+                    username: formData.username,
+                    email: formData.email,
+                    password: formData.password,
+                    esAdmin: false // Seguridad extra desde front
+                });
+                
+                // Si sale bien, avisamos y pasamos al login
+                alert("¡Cuenta creada! Por favor, inicia sesión.");
+                setIsLoginView(true);
+                setFormData({ ...formData, password: '' }); // Limpiamos pass
+            }
         } catch (err) {
-            setError("Usuario o contraseña incorrectos.");
+            console.error(err);
+            setError(isLoginView 
+                ? "Usuario o contraseña incorrectos." 
+                : "Error al registrarse. El usuario ya existe."
+            );
         } finally {
             setLoading(false);
         }
     };
 
-    const handleChange = (e) => {
-        setCreds({ ...creds, [e.target.name]: e.target.value });
+    // Función para alternar vistas y limpiar errores
+    const toggleView = () => {
+        setIsLoginView(!isLoginView);
+        setError('');
     };
 
     return (
-        // CONTENEDOR PRINCIPAL
-        <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden">
+        <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-[#020b14]">
             
-            {/* 1. FONDO DE CARÁTULAS (Collage) */}
+            {/* FONDO */}
             <div 
-                className="absolute inset-0 z-0 bg-cover bg-center opacity-60 scale-105"
-                style={{ 
-                    // Usamos una imagen de collage de pósters de cine
-                    backgroundImage: "url('https://wallpapers.com/images/hd/movie-poster-background-1920-x-1080-8t55s08q8r9q09d6.jpg')" 
-                }}
+                className="absolute inset-0 z-0 bg-cover bg-center opacity-50 scale-105"
+                style={{ backgroundImage: "url('https://wallpapers.com/images/hd/movie-poster-background-1920-x-1080-8t55s08q8r9q09d6.jpg')" }}
             ></div>
+            <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020b14] via-[#041225]/90 to-[#001e3c]/60"></div>
 
-            {/* 2. CAPA DE OSCURECIMIENTO (Para que el texto se lea bien) */}
-            <div className="absolute inset-0 z-10 bg-gradient-to-t from-black via-black/80 to-black/60"></div>
-
-            {/* LOGO (Esquina superior) */}
+            {/* LOGO */}
             <div className="absolute top-8 left-8 z-30">
-                <h1 className="text-[#E50914] text-5xl font-extrabold tracking-tighter drop-shadow-lg cursor-pointer hover:scale-105 transition">
+                <h1 className="text-4xl font-extrabold tracking-tighter drop-shadow-[0_0_15px_rgba(0,240,255,0.5)] cursor-pointer bg-gradient-to-r from-[#0066FF] to-[#00F0FF] bg-clip-text text-transparent">
                     MELIFLIX
                 </h1>
             </div>
 
-            {/* 3. EL CUADRADO CENTRAL (Login Box) */}
-            <div className="relative z-20 w-full max-w-md p-10 bg-black/75 backdrop-blur-md rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/10 animate-fade-in-up">
+            {/* TARJETA CENTRAL */}
+            <div className="relative z-20 w-full max-w-md p-10 bg-[#0a192f]/80 backdrop-blur-md rounded-2xl shadow-[0_0_50px_rgba(0,100,255,0.15)] border border-white/5 animate-fade-in-up">
                 
-                <h2 className="text-3xl font-bold text-white mb-8 text-center">Bienvenido de nuevo</h2>
+                <h2 className="text-3xl font-bold text-white mb-2 text-center">
+                    {isLoginView ? 'Bienvenido' : 'Crear Cuenta'}
+                </h2>
+                <p className="text-blue-200/60 text-center mb-8 text-sm">
+                    {isLoginView ? 'Tu portal de cine favorito' : 'Únete a la comunidad de Meliflix'}
+                </p>
                 
-                {/* Mensaje de error */}
                 {error && (
-                    <div className="mb-6 bg-[#e87c03]/20 border border-[#e87c03] text-[#e87c03] px-4 py-3 rounded text-sm text-center font-semibold">
+                    <div className="mb-6 bg-red-500/10 border border-red-500/30 text-red-200 px-4 py-3 rounded text-sm text-center">
                         {error}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                    
                     {/* Campo Usuario */}
                     <div className="relative group">
                         <input 
                             type="text" 
                             name="username"
-                            className="w-full bg-[#1a1a1a] text-white border border-gray-600 rounded px-4 pt-5 pb-2 focus:border-[#E50914] focus:outline-none transition peer"
-                            placeholder=" "
+                            value={formData.username}
+                            className="w-full bg-[#0d2137] text-white border border-gray-700 rounded-lg px-4 pt-5 pb-2 focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF]/50 focus:outline-none transition-all peer shadow-inner"
+                            placeholder=" " 
                             onChange={handleChange}
                             required
                         />
-                        <label className="absolute left-4 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:top-1 peer-focus:text-xs peer-focus:text-[#E50914]">
-                            Usuario o Email
+                        <label className="absolute left-4 text-blue-300/50 transition-all duration-200 top-2 text-xs font-semibold tracking-wide peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:font-normal peer-focus:top-2 peer-focus:text-xs peer-focus:text-[#00F0FF] peer-focus:font-semibold">
+                            Usuario
                         </label>
                     </div>
+
+                    {/* Campo Email (Solo visible en Registro) */}
+                    {!isLoginView && (
+                        <div className="relative group animate-fade-in">
+                            <input 
+                                type="email" 
+                                name="email"
+                                value={formData.email}
+                                className="w-full bg-[#0d2137] text-white border border-gray-700 rounded-lg px-4 pt-5 pb-2 focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF]/50 focus:outline-none transition-all peer shadow-inner"
+                                placeholder=" " 
+                                onChange={handleChange}
+                                required
+                            />
+                            <label className="absolute left-4 text-blue-300/50 transition-all duration-200 top-2 text-xs font-semibold tracking-wide peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:font-normal peer-focus:top-2 peer-focus:text-xs peer-focus:text-[#00F0FF] peer-focus:font-semibold">
+                                Email
+                            </label>
+                        </div>
+                    )}
 
                     {/* Campo Contraseña */}
                     <div className="relative group">
                         <input 
                             type="password" 
                             name="password"
-                            className="w-full bg-[#1a1a1a] text-white border border-gray-600 rounded px-4 pt-5 pb-2 focus:border-[#E50914] focus:outline-none transition peer"
+                            value={formData.password}
+                            className="w-full bg-[#0d2137] text-white border border-gray-700 rounded-lg px-4 pt-5 pb-2 focus:border-[#00F0FF] focus:ring-1 focus:ring-[#00F0FF]/50 focus:outline-none transition-all peer shadow-inner"
                             placeholder=" "
                             onChange={handleChange}
                             required
                         />
-                        <label className="absolute left-4 top-4 text-gray-400 text-sm transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:top-1 peer-focus:text-xs peer-focus:text-[#E50914]">
+                        <label className="absolute left-4 text-blue-300/50 transition-all duration-200 top-2 text-xs font-semibold tracking-wide peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:font-normal peer-focus:top-2 peer-focus:text-xs peer-focus:text-[#00F0FF] peer-focus:font-semibold">
                             Contraseña
                         </label>
                     </div>
 
-                    {/* Botón de Entrar */}
+                    {/* Botón Principal */}
                     <button 
                         disabled={loading}
-                        className={`w-full bg-[#E50914] hover:bg-[#ff0a16] text-white font-bold py-4 rounded shadow-lg transform hover:scale-[1.02] transition-all duration-200 mt-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`w-full bg-gradient-to-r from-[#0066FF] to-[#00C2FF] hover:from-[#0052cc] hover:to-[#0099cc] text-white font-bold py-4 rounded-lg shadow-[0_4px_20px_rgba(0,194,255,0.3)] transform hover:scale-[1.02] transition-all duration-200 mt-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                        {loading ? (
-                            <div className="flex justify-center items-center gap-2">
-                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                Entrando...
-                            </div>
-                        ) : 'Iniciar Sesión'}
+                        {loading ? 'Procesando...' : (isLoginView ? 'Iniciar Sesión' : 'Crear Cuenta')}
                     </button>
                 </form>
 
-                {/* Pie del formulario */}
-                <div className="mt-8 text-gray-400 text-sm flex justify-between items-center">
-                    <label className="flex items-center gap-2 cursor-pointer hover:text-white transition">
-                        <input type="checkbox" className="w-4 h-4 rounded accent-[#E50914] bg-gray-700 border-none" />
-                        Recuérdame
-                    </label>
-                    <span className="hover:text-white hover:underline cursor-pointer transition">¿Ayuda?</span>
-                </div>
-
-                <div className="mt-8 text-center text-gray-500 text-sm">
-                    ¿Nuevo en Cine App? <span className="text-white font-bold hover:underline cursor-pointer ml-1">Regístrate gratis</span>
+                {/* Pie de tarjeta (Cambiar entre Login/Registro) */}
+                <div className="mt-8 text-center text-blue-200/40 text-sm">
+                    {isLoginView ? "¿Nuevo en Meliflix?" : "¿Ya tienes cuenta?"}
+                    <button 
+                        onClick={toggleView}
+                        className="text-white font-bold hover:text-[#00F0FF] hover:underline ml-2 transition outline-none"
+                    >
+                        {isLoginView ? "Regístrate gratis" : "Inicia sesión"}
+                    </button>
                 </div>
             </div>
         </div>

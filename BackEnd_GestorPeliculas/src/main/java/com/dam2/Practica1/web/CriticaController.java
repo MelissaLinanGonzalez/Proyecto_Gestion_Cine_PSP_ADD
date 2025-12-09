@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/criticas")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class CriticaController {
 
     @Autowired

@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CriticaCreateUpdateDTO {
 
-    @NotBlank(message = "Comentario requeriod")
+    @NotBlank(message = "Comentario requerido")
     private String comentario;
 
     @NotNull(message = "Nota requerida")
@@ -25,4 +25,8 @@ public class CriticaCreateUpdateDTO {
 
     @NotNull(message = "Fecha requerida")
     private LocalDate fecha;
+
+    // ✅ CAMPOS NUEVOS NECESARIOS
+    private Long peliculaId;
+    private Long usuarioId;
 }

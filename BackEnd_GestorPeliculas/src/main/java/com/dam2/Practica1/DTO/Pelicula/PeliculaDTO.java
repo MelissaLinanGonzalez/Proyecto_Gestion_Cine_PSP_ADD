@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -15,5 +16,6 @@ public class PeliculaDTO {
     private int duracion;
     private LocalDate fechaEstreno;
     private String sinopsis;
-    private int valoracion;
+    private Double valoracion;
+    private List<String> categorias;
 }
