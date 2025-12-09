@@ -13,29 +13,27 @@ export default function Row({ title, movies, onMovieClick }) {
         }
     };
 
-    // Si no hay películas en esta categoría, no renderizamos nada
     if (!movies || movies.length === 0) return null;
 
     return (
-        <div className="mb-8 space-y-4 px-6 md:px-16 relative group">
-            {/* Título de la Fila */}
+        // CAMBIO 1: Usamos 'group/row' en lugar de 'group' a secas
+        <div className="mb-8 space-y-4 px-6 md:px-16 relative group/row">
+            
             <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
                 <div className="w-1 h-6 bg-[#00F0FF] rounded-full shadow-[0_0_10px_#00F0FF]"></div>
                 {title}
             </h2>
 
-            {/* Contenedor del Scroll */}
             <div className="relative">
                 
-                {/* Flecha Izquierda */}
+                {/* Flecha Izquierda: Escucha a 'group-hover/row' */}
                 <button 
                     onClick={() => scroll('left')}
-                    className="absolute left-0 top-0 bottom-0 z-20 bg-black/50 hover:bg-[#00F0FF]/20 text-white hover:text-[#00F0FF] p-2 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center w-12 backdrop-blur-sm"
+                    className="absolute left-0 top-0 bottom-0 z-20 bg-black/50 hover:bg-[#00F0FF]/20 text-white hover:text-[#00F0FF] p-2 transition-all opacity-0 group-hover/row:opacity-100 flex items-center justify-center w-12 backdrop-blur-sm"
                 >
                     <ChevronLeft size={40} />
                 </button>
 
-                {/* Lista de Películas */}
                 <div 
                     ref={rowRef}
                     className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth py-4 px-1"
@@ -47,10 +45,10 @@ export default function Row({ title, movies, onMovieClick }) {
                     ))}
                 </div>
 
-                {/* Flecha Derecha */}
+                {/* Flecha Derecha: Escucha a 'group-hover/row' */}
                 <button 
                     onClick={() => scroll('right')}
-                    className="absolute right-0 top-0 bottom-0 z-20 bg-black/50 hover:bg-[#00F0FF]/20 text-white hover:text-[#00F0FF] p-2 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center w-12 backdrop-blur-sm"
+                    className="absolute right-0 top-0 bottom-0 z-20 bg-black/50 hover:bg-[#00F0FF]/20 text-white hover:text-[#00F0FF] p-2 transition-all opacity-0 group-hover/row:opacity-100 flex items-center justify-center w-12 backdrop-blur-sm"
                 >
                     <ChevronRight size={40} />
                 </button>

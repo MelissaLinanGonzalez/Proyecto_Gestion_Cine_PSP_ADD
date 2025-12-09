@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { localApi, getMovieImage, getMovieTrailer } from '../services/api';
 import Row from '../components/Row';
 import MovieModal from '../components/MovieModal';
@@ -19,63 +19,97 @@ export default function Home() {
     const [featuredVideo, setFeaturedVideo] = useState(null); 
 
     const scrollContainerRef = useRef(null);
+    // ✅ Referencia para guardar el temporizador de la búsqueda y poder cancelarlo
+    const searchTimeoutRef = useRef(null);
+
     const { user, logout } = useAuth();
     const navigate = useNavigate();
 
-    // Scroll de categorías con flechas
-    const scrollCategories = (direction) => {
-        const container = scrollContainerRef.current;
-        if (container) {
-            const scrollAmount = direction === 'left' ? -400 : 400;
-            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        }
-    };
-
-    // ✅ ESTA ES LA FUNCIÓN IMPORTANTE QUE NO SE ESTABA LLAMANDO
-    const cargarDatos = async () => {
+    // Carga inicial de datos
+    const cargarDatos = useCallback(async () => {
         try {
             const [resMovies, resCats] = await Promise.all([
                 localApi.get('/api/peliculas'),
                 localApi.get('/categorias')
             ]);
             
-            const moviesData = resMovies.data.sort((a, b) => b.id - a.id);
-            setMovies(moviesData);
-            setCategorias(resCats.data);
-            
-            // Hero aleatorio
-            if (moviesData.length > 0) {
-                const randomMovie = moviesData[Math.floor(Math.random() * moviesData.length)];
-                setFeaturedMovie(randomMovie);
-                getMovieImage(randomMovie.titulo).then(url => setFeaturedImage(url));
-                getMovieTrailer(randomMovie.titulo).then(url => setFeaturedVideo(url));
+            // Validamos que sea un array antes de ordenar
+            if (Array.isArray(resMovies.data)) {
+                const moviesData = resMovies.data.sort((a, b) => b.id - a.id);
+                setMovies(moviesData);
+                
+                // Hero aleatorio
+                if (moviesData.length > 0) {
+                    const randomMovie = moviesData[Math.floor(Math.random() * moviesData.length)];
+                    setFeaturedMovie(randomMovie);
+                    getMovieImage(randomMovie.titulo).then(url => setFeaturedImage(url));
+                    getMovieTrailer(randomMovie.titulo).then(url => setFeaturedVideo(url));
+                }
             }
+            
+            if (Array.isArray(resCats.data)) {
+                setCategorias(resCats.data);
+            }
+
             setSelectedCat(null);
         } catch (error) {
             console.error("Error cargando datos:", error);
         }
-    };
+    }, []);
 
-    const filtrarPorCategoria = async (nombreCategoria) => {
+    const filtrarPorCategoria = useCallback(async (nombreCategoria) => {
         try {
             const res = await localApi.get(`/api/peliculas/categoria/${nombreCategoria}`);
-            setMovies(res.data);
-            setSelectedCat(nombreCategoria);
-            setSearchTerm('');
+            if (Array.isArray(res.data)) {
+                setMovies(res.data);
+                setSelectedCat(nombreCategoria);
+                setSearchTerm('');
+            }
         } catch (error) {
             console.error("Error filtrando:", error);
         }
-    };
+    }, []);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            await cargarDatos();
+        };
+        fetchData();
+    }, []);
+
+    // ✅ FUNCIÓN DE BÚSQUEDA CORREGIDA Y ROBUSTA
     const handleSearch = (e) => {
         const query = e.target.value;
         setSearchTerm(query);
         setSelectedCat(null);
         
-        setTimeout(async () => {
-            const url = query ? `/api/peliculas/buscar?query=${query}` : '/api/peliculas';
-            const res = await localApi.get(url);
-            setMovies(res.data);
+        // 1. Si hay una búsqueda pendiente, la cancelamos para que no se pisen
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+
+        // 2. Iniciamos el nuevo temporizador (300ms)
+        searchTimeoutRef.current = setTimeout(async () => {
+            try {
+                let res;
+                // Usamos 'params' para que axios codifique caracteres raros (espacios, tildes...)
+                if (query) {
+                    res = await localApi.get('/api/peliculas/buscar', { params: { query } });
+                } else {
+                    res = await localApi.get('/api/peliculas');
+                }
+
+                // 3. ¡IMPORTANTE! Solo actualizamos si es un array válido. Esto evita la pantalla blanca.
+                if (res.data && Array.isArray(res.data)) {
+                    setMovies(res.data);
+                } else {
+                    console.warn("La respuesta de búsqueda no es una lista válida", res.data);
+                    setMovies([]); // Evitamos el crash poniendo lista vacía
+                }
+            } catch (error) {
+                console.error("Error en la búsqueda:", error);
+                setMovies([]); // En caso de error (500, 404), lista vacía
+            }
         }, 300);
     };
 
@@ -87,26 +121,29 @@ export default function Home() {
         }
     };
 
-    // ✅ CORREGIDO: Ahora llama a la función de arriba, no crea una vacía
-    useEffect(() => {
-        let isMounted = true;
-        
-        const loadData = async () => {
-            if (isMounted) {
-                await cargarDatos();
-            }
-        };
-        
-        loadData();
-        
-        return () => {
-            isMounted = false;
-        };
-    }, []);
+    // Scroll de categorías
+    const scrollCategories = (direction) => {
+        const container = scrollContainerRef.current;
+        if (container) {
+            const scrollAmount = direction === 'left' ? -400 : 400;
+            container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    };
 
     // Helper para las filas
     const getMoviesByCategory = (catName) => {
         return movies.filter(m => m.categorias && m.categorias.includes(catName));
+    };
+
+    // Helper seguro para renderizar grid de búsqueda
+    const renderSearchResults = () => {
+        // Doble seguridad: verificamos que movies sea un array
+        if (!Array.isArray(movies)) return null;
+        
+        // Si estamos buscando, el backend ya filtró, así que mostramos todo lo que hay en 'movies'
+        // Si quieres filtrar en cliente sobre lo ya buscado (opcional):
+        // return movies.filter(m => m.titulo.toLowerCase().includes(searchTerm.toLowerCase()));
+        return movies; 
     };
 
     return (
@@ -196,7 +233,7 @@ export default function Home() {
                 <div className="px-6 md:px-16 pb-20 mt-8 animate-fade-in-up">
                     {movies.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                            {movies.map(peli => (
+                            {renderSearchResults().map(peli => (
                                 <div key={peli.id} className="relative group">
                                     <MovieCard movie={peli} onClick={(m) => setSelectedMovie(m)} />
                                 </div>
@@ -205,7 +242,7 @@ export default function Home() {
                     ) : (
                         <div className="flex flex-col items-center justify-center py-20 text-blue-400/50">
                             <Search size={48} className="mb-4 opacity-50"/>
-                            <p className="text-xl">No se encontraron películas en esta categoría.</p>
+                            <p className="text-xl">No se encontraron películas.</p>
                         </div>
                     )}
                 </div>
