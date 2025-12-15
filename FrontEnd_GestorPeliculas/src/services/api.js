@@ -8,11 +8,11 @@ export const localApi = axios.create({
 // 2. Configuración de la API de Imágenes y Vídeos (TMDB)
 const TMDB_KEY = 'b6dcb548bcd012eb804e5f24ee492467'; 
 const TMDB_URL = 'https://api.themoviedb.org/3';
-const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original'; // Usamos 'original' para mejor calidad en fondo
+const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/original'; 
 
 // Función para obtener la Imagen
 export const getMovieImage = async (title) => {
-    if (!TMDB_KEY || TMDB_KEY === 'api_key') return 'https://via.placeholder.com/500x750?text=Sin+API+Key';
+    if (!TMDB_KEY || TMDB_KEY === 'API_KEY') return 'https://via.placeholder.com/500x750?text=Sin+API+Key';
 
     try {
         const response = await axios.get(`${TMDB_URL}/search/movie`, {
