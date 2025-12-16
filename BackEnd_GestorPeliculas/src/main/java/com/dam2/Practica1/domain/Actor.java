@@ -18,7 +18,7 @@ public class Actor {
 
     private String nombre;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name="actor_pelicula",
             joinColumns = @JoinColumn(name="actor_id"),

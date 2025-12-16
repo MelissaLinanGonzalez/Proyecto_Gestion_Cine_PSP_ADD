@@ -1,7 +1,6 @@
 package com.dam2.Practica1.DTO.Pelicula;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import com.dam2.Practica1.DTO.Director.DirectorCreateUpdateDTO; // Asegúrate de importar esto
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -29,4 +28,8 @@ public class PeliculaCreateUpdateDTO {
     private String sinopsis;
 
     private List<Long> categoriaIds;
+
+    private List<String> actores;
+
+    private DirectorCreateUpdateDTO director;
 }

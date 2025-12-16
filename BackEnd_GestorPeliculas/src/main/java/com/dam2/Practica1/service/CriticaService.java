@@ -9,10 +9,10 @@ import com.dam2.Practica1.repository.PeliculaRepository;
 import com.dam2.Practica1.repository.UsuarioRepository;
 import com.dam2.Practica1.domain.Pelicula;
 import com.dam2.Practica1.domain.Usuario;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -98,4 +98,11 @@ public class CriticaService {
         criticaRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    public List<CriticaDTO> obtenerCriticasPorPelicula(Long peliculaId) {
+        return criticaRepository.findByPeliculaId(peliculaId)
+                .stream()
+                .map(CriticaMapper::toDTO)
+                .toList();
+    }
 }

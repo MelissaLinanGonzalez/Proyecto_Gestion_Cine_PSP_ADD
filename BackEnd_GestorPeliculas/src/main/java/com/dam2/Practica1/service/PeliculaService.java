@@ -3,24 +3,27 @@ package com.dam2.Practica1.service;
 import com.dam2.Practica1.DTO.Pelicula.PeliculaCreateUpdateDTO;
 import com.dam2.Practica1.DTO.Pelicula.PeliculaDTO;
 import com.dam2.Practica1.domain.Categoria;
+import com.dam2.Practica1.domain.Director;
 import com.dam2.Practica1.domain.Pelicula;
+import com.dam2.Practica1.domain.Actor;
 import com.dam2.Practica1.mapper.PeliculaMapper;
+import com.dam2.Practica1.repository.ActorRepository;
 import com.dam2.Practica1.repository.CategoriaRepository;
 import com.dam2.Practica1.repository.DirectorRepository;
 import com.dam2.Practica1.repository.PeliculaRepository;
-import lombok.*;
-import org.springframework.stereotype.Service;
-// IMPORTANTE: Asegúrate de importar Transactional de Spring, no de Jakarta
-import org.springframework.transaction.annotation.Transactional;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+// ✅ IMPORTANTE: Usar la de Spring, no Jakarta para readOnly
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.concurrent.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 @Service
@@ -32,8 +35,7 @@ public class PeliculaService {
     private final DirectorRepository directorRepository;
     private final CategoriaRepository categoriaRepository;
     private final ImportarService importarService;
-
-    // ✅ AÑADIDO @Transactional a todos los métodos de lectura para evitar LazyInitializationException
+    private final ActorRepository actorRepository;
 
     @Transactional(readOnly = true)
     public List<PeliculaDTO> buscarPorTitulo(String titulo) {
@@ -70,14 +72,40 @@ public class PeliculaService {
     public PeliculaDTO guardar(PeliculaCreateUpdateDTO dto){
         Pelicula pelicula = PeliculaMapper.toEntity(dto);
 
-        directorRepository.findById(1L).ifPresent(pelicula::setDirector);
+        if (dto.getDirector() != null && dto.getDirector().getNombre() != null && !dto.getDirector().getNombre().isEmpty()) {
+            String nombreDirector = dto.getDirector().getNombre();
+
+            Optional<Director> directorExistente = directorRepository.findAll().stream()
+                    .filter(d -> d.getNombre().equalsIgnoreCase(nombreDirector))
+                    .findFirst();
+
+            if (directorExistente.isPresent()) {
+                pelicula.setDirector(directorExistente.get());
+            } else {
+                Director nuevoDirector = new Director();
+                nuevoDirector.setNombre(nombreDirector);
+                nuevoDirector = directorRepository.save(nuevoDirector);
+                pelicula.setDirector(nuevoDirector);
+            }
+        }
 
         if (dto.getCategoriaIds() != null && !dto.getCategoriaIds().isEmpty()) {
             for (Long catId : dto.getCategoriaIds()) {
-                Categoria categoria = categoriaRepository.findById(catId).orElse(null);
-                if (categoria != null) {
-                    pelicula.addCategoria(categoria);
-                }
+                categoriaRepository.findById(catId).ifPresent(pelicula::addCategoria);
+            }
+        }
+
+        if (dto.getActores() != null && !dto.getActores().isEmpty()) {
+            for (String nombreActor : dto.getActores()) {
+                Actor actor = actorRepository.findAll().stream()
+                        .filter(a -> a.getNombre().equalsIgnoreCase(nombreActor))
+                        .findFirst()
+                        .orElseGet(() -> {
+                            Actor nuevo = new Actor();
+                            nuevo.setNombre(nombreActor);
+                            return actorRepository.save(nuevo);
+                        });
+                pelicula.addActor(actor);
             }
         }
 
@@ -92,18 +120,39 @@ public class PeliculaService {
 
         PeliculaMapper.updateEntity(pelicula, dto);
 
-        // Actualizar categorías si vienen en el DTO
-        if (dto.getCategoriaIds() != null) {
-            // Limpiamos las anteriores
-            // Nota: Para hacerlo bien habría que borrar la relación, aquí simplificamos
-            // pelicula.getCategorias().clear(); // Cuidado con esto en ManyToMany bidireccional
+        if (dto.getDirector() != null && dto.getDirector().getNombre() != null) {
+            String nombreDirector = dto.getDirector().getNombre();
 
-            // Añadimos las nuevas (lógica simplificada)
+            Director director = directorRepository.findAll().stream()
+                    .filter(d -> d.getNombre().equalsIgnoreCase(nombreDirector))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        Director nuevo = new Director();
+                        nuevo.setNombre(nombreDirector);
+                        return directorRepository.save(nuevo);
+                    });
+            pelicula.setDirector(director);
+        }
+
+        if (dto.getCategoriaIds() != null) {
+            new ArrayList<>(pelicula.getCategorias()).forEach(pelicula::removeCategoria);
             for (Long catId : dto.getCategoriaIds()) {
-                Categoria categoria = categoriaRepository.findById(catId).orElse(null);
-                if (categoria != null && !pelicula.getCategorias().contains(categoria)) {
-                    pelicula.addCategoria(categoria);
-                }
+                categoriaRepository.findById(catId).ifPresent(pelicula::addCategoria);
+            }
+        }
+
+        if (dto.getActores() != null) {
+            new ArrayList<>(pelicula.getActors()).forEach(pelicula::removeActor);
+            for (String nombreActor : dto.getActores()) {
+                Actor actor = actorRepository.findAll().stream()
+                        .filter(a -> a.getNombre().equalsIgnoreCase(nombreActor))
+                        .findFirst()
+                        .orElseGet(() -> {
+                            Actor nuevo = new Actor();
+                            nuevo.setNombre(nombreActor);
+                            return actorRepository.save(nuevo);
+                        });
+                pelicula.addActor(actor);
             }
         }
 
@@ -116,16 +165,12 @@ public class PeliculaService {
         peliculaRepository.deleteById(id);
     }
 
-    // Métodos extra (mejores_peliculas, tareas lentas, etc.) se mantienen igual...
     public List<Pelicula> mejores_peliculas(int valoracion){
-        // Este método devuelve Entidades directamente, cuidado con el lazy load en el controlador
-        // Lo ideal sería convertir a DTO aquí también.
         return peliculaRepository.findAll().stream()
                 .filter(p -> p.getValoracion() >= valoracion)
                 .toList();
     }
 
-    // ... Resto de métodos (importar, votarOscar, etc.) dejálos como estaban
     public void importarCarpeta(String rutaCarpeta) throws IOException {
         long inicio = System.currentTimeMillis();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -149,8 +194,7 @@ public class PeliculaService {
         return CompletableFuture.completedFuture("Procesada " + titulo);
     }
 
-    // ... etc
     public Map<String, Integer> votarOscar(int numJurados){
-        return new HashMap<>(); // Placeholder para no alargar el código
+        return new HashMap<>();
     }
 }

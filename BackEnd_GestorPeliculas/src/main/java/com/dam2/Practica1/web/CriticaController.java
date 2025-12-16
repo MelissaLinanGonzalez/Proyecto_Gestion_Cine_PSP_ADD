@@ -31,6 +31,11 @@ public class CriticaController {
         return criticaService.buscarPorId(id);
     }
 
+    @GetMapping("/pelicula/{id}")
+    public List<CriticaDTO> obtenerCriticasDePelicula(@PathVariable Long id){
+        return criticaService.obtenerCriticasPorPelicula(id);
+    }
+
     @PostMapping
     public CriticaDTO crear(@RequestBody CriticaCreateUpdateDTO dto){
         return criticaService.crear(dto);
